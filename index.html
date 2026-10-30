@@ -43,6 +43,9 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outlin
 .term .cur { display: inline-block; width: 8px; height: 1em; background: var(--term-fg); vertical-align: text-bottom; animation: blink 1s steps(2) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 .cap { font-size: .85rem; color: var(--muted); margin-top: 8px; }
+.fig { margin: 28px 0 0; }
+.fig img { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line); }
+.fig figcaption { font-size: .85rem; color: var(--muted); margin-top: 8px; }
 
 .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 20px; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
@@ -101,6 +104,10 @@ footer { padding: 32px 0 56px; border-top: 1px solid var(--line); color: var(--m
   <h1>AI Workshop: a club for students who build.</h1>
   <p class="lead">Students already learn to code. This club teaches them to work with the AI tools professional developers now use: choose the right tool, use it well, and check what it gives back.</p>
   <div class="pill-row"><span class="pill">Ages 13 and over</span><span class="pill">Parent or guardian consent for under 18s</span><span class="pill">Only tools the school allows</span></div>
+  <figure class="fig">
+    <img src="media/hero.webp" width="1672" height="941" alt="A toolbox filled with digital tools: a terminal, a branching diagram, a chat bubble, a magnifying glass over code and a shield with a checkmark.">
+    <figcaption>Illustration made with ChatGPT (image generation), from a prompt written with Claude.</figcaption>
+  </figure>
   <div class="term" id="term" aria-label="Example of a student typing git commands" role="img"></div>
   <p class="cap">Every student learns git by typing it themselves. This is an illustration, not a recording.</p>
   <p class="made reveal"><b>Made with:</b> Page, layout and animation built with Claude Code. Concept, scope and decisions by Mark Tenzer.</p>
@@ -185,7 +192,7 @@ footer { padding: 32px 0 56px; border-top: 1px solid var(--line); color: var(--m
       <tr><th>Research on tools and age rules</th><td>Researched by Mark with Gemini. Age rules for several tools cross-checked with Claude's web search. Each provider's own terms are the source of truth</td></tr>
       <tr><th>Layout, animation, tool picker</th><td>Built with Claude Code as one self-contained file</td></tr>
       <tr><th>Version history and publishing</th><td>Git and GitHub, published with GitHub Pages</td></tr>
-      <tr><th>Images, voice, video</th><td>Coming in the next version, each credited to the tool that made it</td></tr>
+      <tr><th>Images, voice, video</th><td>Hero illustration: ChatGPT image generation, prompt written with Claude. More images and an animated explainer are coming, each credited to the tool that made it</td></tr>
     </table>
   </div>
   <p class="cap">No account is needed to view this page. It has no tracking and loads nothing from other sites.</p>
@@ -193,7 +200,7 @@ footer { padding: 32px 0 56px; border-top: 1px solid var(--line); color: var(--m
 
 </main>
 <footer>
-  <div class="wrap">AI Workshop proposal, version 0.2, 30 October 2026.</div>
+  <div class="wrap">AI Workshop proposal, version 0.3, 30 October 2026.</div>
 </footer>
 
 <script>
