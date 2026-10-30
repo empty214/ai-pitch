@@ -269,7 +269,8 @@ button:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
 
   function sendHeight(){
     if(window.parent!==window){
-      window.parent.postMessage({explainerHeight:document.documentElement.scrollHeight},'*');
+      var app=document.getElementById('app');
+      window.parent.postMessage({explainerHeight:Math.ceil(app.getBoundingClientRect().height)+32},'*');
     }
   }
   window.addEventListener('resize',sendHeight);
