@@ -28,11 +28,13 @@ Alt text to use on the page:
 - git: A subway-style map of a project's history, with branches splitting and merging.
 - judgment: A person pausing a robot arm that is offering code.
 
-## 2. Video: NotebookLM (video overview)
+## 2. Short clip: NotebookLM (Short video overview, about 60 seconds)
+
+This is a short example for the NotebookLM result in the tool picker, showing what the tool does with one source file. Format names move around, so check what your Studio panel offers. Choose **Short** (about 60 seconds, vertical, English). If there is no Short option, use **Brief**.
 
 1. Go to notebooklm.google.com and create a new notebook.
 2. Upload only `media/notebooklm-source.md`.
-3. In the Studio panel choose **Video Overview**.
+3. In the Studio panel choose **Video Overview**, then the **Short** format.
 4. Style: choose **Custom** and paste the style line below. (Custom styles are for adults, which you are.) If Custom isn't offered, pick **Whiteboard** or **Paper-craft**.
 5. Paste the steering prompt below.
 6. Generate. It can take 30 minutes or more. Then use **Download** in the player.
@@ -41,9 +43,9 @@ Style line:
 > Clean flat vector illustration with a soft indigo and blue palette and warm yellow accents, calm and professional, no cartoon faces.
 
 Steering prompt:
-> Audience: a school principal and teachers deciding whether to offer an after-school club. Keep it short, about 90 seconds if the length can be set. Tone: calm, confident, no hype. Cover: the gap (students learn Python but not the newest AI coding tools or how to check them), the right tool for the job, git typed by hand, the human in the loop (the AI drafts, a person decides), and the guardrails (ages 13 and over, parent or guardian consent, tools the school allows). Do not mention prices or any commercial plans. Do not invent facts that are not in the source.
+> Audience: a school principal and teachers deciding whether to offer an after-school club. This is a clip of about 60 seconds, so keep to three points only: the gap (students learn Python but not the newest AI coding tools or how to check them), the right tool for the job, and the human in the loop (the AI drafts, a person decides). Leave out everything else. Tone: calm, confident, no hype. Do not mention prices or any commercial plans. Do not invent facts that are not in the source.
 
-Save as `media/overview.mp4`. Keep it under about 20 MB (Claude Code can compress it). Review it end to end before it goes on the page.
+Save as `media/notebooklm-clip.mp4`. Keep it under about 20 MB (Claude Code can compress it). On the page it will sit behind a "Watch an example" button under the NotebookLM result in the tool picker, in a phone-shaped frame since the Short format is vertical. Review it end to end before it goes on the page.
 
 ## 3. Animation: Claude (normal chat on your Pro plan)
 
