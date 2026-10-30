@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Right tool for the job</title>
+<style>
+:root{
+  --bg:#eef2ff; --panel:#ffffff; --text:#1b2140; --muted:#8b95c4;
+  --indigo:#2f5bea; --soft:#dfe6ff; --yellow:#f5b82e; --line:#2f5bea; --lens:#14183a;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0f1426; --panel:#1a2140; --text:#e8ecff; --muted:#5d6aa3;
+    --indigo:#6f90ff; --soft:#2a3466; --yellow:#ffc94d; --line:#8aa5ff;}
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);
+  font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px}
+#app{width:100%;max-width:760px}
+.stage{position:relative;background:var(--panel);border-radius:20px;aspect-ratio:4/3;
+  box-shadow:0 8px 30px rgba(47,91,234,.15);overflow:hidden}
+.scene{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:4% 5%}
+.scene.on{display:flex}
+.scene svg{width:100%;flex:1;min-height:0}
+.cap{margin:0;font-size:clamp(20px,4.6vw,34px);font-weight:700;text-align:center;letter-spacing:-.01em;padding-bottom:2%}
+.num{position:absolute;top:14px;left:18px;font-size:13px;font-weight:700;color:var(--muted)}
+.bar{height:6px;background:var(--soft);border-radius:3px;margin-top:14px;overflow:hidden}
+#fill{height:100%;width:0;background:var(--yellow)}
+.controls{display:flex;gap:10px;justify-content:center;margin-top:14px}
+button{font:inherit;font-weight:600;padding:10px 20px;border-radius:999px;border:2px solid var(--indigo);
+  background:var(--indigo);color:#fff;cursor:pointer}
+button.alt{background:transparent;color:var(--indigo)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+
+/* svg paint */
+.ind{fill:var(--indigo)} .yel{fill:var(--yellow)} .sf{fill:var(--soft)} .lens{fill:var(--lens)}
+.ln{stroke:var(--line);fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.tx{fill:var(--text);font:700 14px system-ui,sans-serif}
+.mono{font-family:ui-monospace,Consolas,monospace;font-weight:600}
+.fb{transform-box:fill-box;transform-origin:center}
+
+/* animations: base styles are the FINAL state */
+.paused *{animation-play-state:paused!important}
+.on .cap{animation:fade .6s ease .2s backwards}
+.pop{animation:pop .5s cubic-bezier(.3,1.6,.5,1) backwards;transform-box:fill-box;transform-origin:center}
+.fadein{animation:fade .6s ease backwards}
+.drop{animation:drop .5s ease-in backwards}
+.bob{animation:bob 1.1s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.wave{animation:wave .7s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:bottom center}
+.lift{transform:translateY(-30px);opacity:0;animation:lift .8s ease 3s backwards}
+@keyframes lift{from{transform:none;opacity:1}}
+.slide{animation:slide .9s cubic-bezier(.2,.9,.3,1) backwards}
+.draw{stroke-dasharray:1;stroke-dashoffset:0;animation:draw 1s ease-in-out backwards}
+.press{animation:press .4s ease 4s backwards;transform-box:fill-box;transform-origin:center}
+.spin{transform-origin:150px 105px;animation:spin 3.4s cubic-bezier(.25,.5,.3,1) backwards}
+@keyframes pop{from{transform:scale(0);opacity:0}}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}}
+@keyframes drop{from{transform:translateY(-26px);opacity:0}}
+@keyframes bob{50%{transform:translateY(-8px) scale(1.08)}}
+@keyframes wave{from{transform:rotate(-12deg)}to{transform:rotate(12deg)}}
+@keyframes slide{from{transform:translate(var(--dx),var(--dy)) rotate(var(--r,0deg));opacity:0}}
+@keyframes draw{from{stroke-dashoffset:1}}
+@keyframes press{50%{transform:scale(.88)}}
+@keyframes spin{from{transform:rotate(-1080deg)}}
+
+/* reduced motion: five static panels */
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  #app{max-width:1000px}
+  .stage{aspect-ratio:auto;background:none;box-shadow:none;overflow:visible;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+  .scene{position:relative;display:flex;aspect-ratio:4/3;background:var(--panel);border-radius:16px;
+    box-shadow:0 4px 16px rgba(47,91,234,.12)}
+  .cap{font-size:20px}
+  .bar,.controls{display:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="stu"><circle class="ind" cx="0" cy="-14" r="11"/><rect class="ind" x="-13" y="0" width="26" height="24" rx="9"/></g>
+    <g id="shades"><rect class="lens" x="-11" y="-19" width="10" height="7" rx="3"/><rect class="lens" x="1" y="-19" width="10" height="7" rx="3"/><rect class="lens" x="-2" y="-18" width="4" height="2"/></g>
+  </defs>
+</svg>
+<main id="app">
+  <div class="stage" id="stage" role="region" aria-label="Animated explainer, five scenes" aria-live="polite">
+
+    <!-- 1 -->
+    <section class="scene"><span class="num">1 / 5</span>
+      <svg viewBox="0 0 400 240" role="img" aria-label="Five students wearing sunglasses, each with an AI chip">
+        <g transform="translate(50 150) scale(1.9)"><g class="pop" style="animation-delay:.1s"><use href="#stu"/></g><g class="drop" style="animation-delay:1.2s"><use href="#shades"/></g></g>
+        <g transform="translate(125 150) scale(1.9)"><g class="pop" style="animation-delay:.3s"><use href="#stu"/></g><g class="drop" style="animation-delay:1.4s"><use href="#shades"/></g></g>
+        <g transform="translate(200 150) scale(1.9)"><g class="pop" style="animation-delay:.5s"><use href="#stu"/></g><g class="drop" style="animation-delay:1.6s"><use href="#shades"/></g></g>
+        <g transform="translate(275 150) scale(1.9)"><g class="pop" style="animation-delay:.7s"><use href="#stu"/></g><g class="drop" style="animation-delay:1.8s"><use href="#shades"/></g></g>
+        <g transform="translate(350 150) scale(1.9)"><g class="pop" style="animation-delay:.9s"><use href="#stu"/></g><g class="drop" style="animation-delay:2s"><use href="#shades"/></g></g>
+        <g class="pop" style="animation-delay:2.5s"><rect class="yel" x="32" y="42" width="36" height="22" rx="8"/><text class="tx" x="50" y="58" text-anchor="middle" style="font-size:13px;fill:#1b2140">AI</text></g>
+        <g class="pop" style="animation-delay:2.7s"><rect class="yel" x="107" y="42" width="36" height="22" rx="8"/><text class="tx" x="125" y="58" text-anchor="middle" style="font-size:13px;fill:#1b2140">AI</text></g>
+        <g class="pop" style="animation-delay:2.9s"><rect class="yel" x="182" y="42" width="36" height="22" rx="8"/><text class="tx" x="200" y="58" text-anchor="middle" style="font-size:13px;fill:#1b2140">AI</text></g>
+        <g class="pop" style="animation-delay:3.1s"><rect class="yel" x="257" y="42" width="36" height="22" rx="8"/><text class="tx" x="275" y="58" text-anchor="middle" style="font-size:13px;fill:#1b2140">AI</text></g>
+        <g class="pop" style="animation-delay:3.3s"><rect class="yel" x="332" y="42" width="36" height="22" rx="8"/><text class="tx" x="350" y="58" text-anchor="middle" style="font-size:13px;fill:#1b2140">AI</text></g>
+      </svg>
+      <p class="cap">Students already use AI tools, often blindly.</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="scene"><span class="num">2 / 5</span>
+      <svg viewBox="0 0 400 240" role="img" aria-label="A board with a question mark above five students in sunglasses; one student lifts the sunglasses">
+        <g transform="translate(72 0)"><g class="fadein" style="animation-delay:.1s">
+          <rect class="ind" x="20" y="14" width="236" height="118" rx="10"/>
+          <rect class="sf" x="30" y="24" width="30" height="30" rx="6" style="opacity:.55"/>
+          <circle class="sf" cx="90" cy="39" r="15" style="opacity:.55"/>
+          <path class="sf" d="M120 54h30l-15-30z" style="opacity:.55"/>
+          <rect class="sf" x="30" y="94" width="30" height="24" rx="6" style="opacity:.55"/>
+          <circle class="sf" cx="90" cy="106" r="13" style="opacity:.55"/>
+          <path class="sf" d="M120 120h30l-15-26z" style="opacity:.55"/>
+        </g>
+        <g class="bob"><text x="212" y="100" text-anchor="middle" style="font:800 80px system-ui,sans-serif;fill:var(--yellow)">?</text></g></g>
+        <g transform="translate(50 190) scale(1.3)"><g class="pop" style="animation-delay:1.2s"><use href="#stu"/></g><use href="#shades"/></g>
+        <g transform="translate(120 190) scale(1.3)"><g class="pop" style="animation-delay:1.4s"><use href="#stu"/></g><use href="#shades"/></g>
+        <g transform="translate(190 190) scale(1.3)"><g class="pop" style="animation-delay:1.6s"><use href="#stu"/></g><g class="lift"><use href="#shades"/></g></g>
+        <g transform="translate(260 190) scale(1.3)"><g class="pop" style="animation-delay:1.8s"><use href="#stu"/></g><use href="#shades"/></g>
+        <g transform="translate(330 190) scale(1.3)"><g class="pop" style="animation-delay:2s"><use href="#stu"/></g><use href="#shades"/></g>
+      </svg>
+      <p class="cap">Choosing the right one is a skill worth building.</p>
+    </section>
+
+    <!-- 3 -->
+    <section class="scene"><span class="num">3 / 5</span>
+      <svg viewBox="0 0 400 240" role="img" aria-label="Nine tools sliding into an open toolbox">
+        <path class="ln" d="M170 78V56q0-12 12-12h36q12 0 12 12v22" style="stroke-width:7"/>
+        <path d="M98 122L112 78H288L302 122Z" class="sf" style="stroke:var(--line);stroke-width:4;stroke-linejoin:round"/>
+        <rect class="sf" x="96" y="118" width="208" height="40" rx="4" style="stroke:var(--line);stroke-width:4"/>
+        <!-- tools -->
+        <g transform="translate(118 0)"><g class="slide" style="--dx:-150px;--dy:-100px;--r:-40deg;animation-delay:.1s"><rect class="yel" x="-4" y="112" width="8" height="52" rx="3"/><circle class="ind" cx="0" cy="108" r="9"/></g></g>
+        <g transform="translate(140 0)"><g class="slide" style="--dx:-90px;--dy:-130px;--r:30deg;animation-delay:.4s"><rect class="ind" x="-4" y="112" width="8" height="52" rx="3"/><rect class="yel" x="-9" y="99" width="18" height="14" rx="3"/></g></g>
+        <g transform="translate(162 0)"><g class="slide" style="--dx:-40px;--dy:-120px;--r:-25deg;animation-delay:.7s"><rect class="yel" x="-4" y="112" width="8" height="52" rx="3"/><path class="ind" d="M-10 112h20l-10-20z"/></g></g>
+        <g transform="translate(184 0)"><g class="slide" style="--dx:10px;--dy:-140px;--r:35deg;animation-delay:1s"><rect class="ind" x="-4" y="112" width="8" height="52" rx="3"/><circle class="yel" cx="0" cy="106" r="10"/></g></g>
+        <g transform="translate(206 0)"><g class="slide" style="--dx:60px;--dy:-120px;--r:-30deg;animation-delay:1.3s"><rect class="yel" x="-4" y="112" width="8" height="52" rx="3"/><rect class="ind" x="-10" y="98" width="20" height="14" rx="7"/></g></g>
+        <g transform="translate(228 0)"><g class="slide" style="--dx:100px;--dy:-130px;--r:25deg;animation-delay:1.6s"><rect class="ind" x="-4" y="112" width="8" height="52" rx="3"/><path class="yel" d="M0 92l10 10-10 10-10-10z"/></g></g>
+        <g transform="translate(250 0)"><g class="slide" style="--dx:140px;--dy:-100px;--r:-35deg;animation-delay:1.9s"><rect class="yel" x="-4" y="112" width="8" height="52" rx="3"/><circle class="ind" cx="0" cy="108" r="9"/></g></g>
+        <g transform="translate(272 0)"><g class="slide" style="--dx:170px;--dy:-80px;--r:30deg;animation-delay:2.2s"><rect class="ind" x="-4" y="112" width="8" height="52" rx="3"/><rect class="yel" x="-9" y="99" width="18" height="14" rx="3"/></g></g>
+        <g transform="translate(294 0)"><g class="slide" style="--dx:190px;--dy:-60px;--r:-20deg;animation-delay:2.5s"><rect class="yel" x="-4" y="112" width="8" height="52" rx="3"/><path class="ind" d="M-10 112h20l-10-20z"/></g></g>
+        <!-- front panel -->
+        <rect class="ind" x="86" y="146" width="228" height="72" rx="12"/>
+        <rect class="yel" x="188" y="140" width="24" height="26" rx="5"/>
+        <rect x="192" y="152" width="16" height="6" rx="3" class="lens"/>
+        <path d="M110 200h180" style="stroke:#fff;stroke-opacity:.35;stroke-width:4;stroke-linecap:round"/>
+      </svg>
+      <p class="cap">Right tool for the job.</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="scene"><span class="num">4 / 5</span>
+      <svg viewBox="0 0 400 240" role="img" aria-label="A repository: a feature branch splits from main, then is merged back with typed git commands">
+        <g class="fadein"><rect class="sf" x="24" y="14" width="14" height="16" rx="3"/><text class="tx mono" x="46" y="27" style="font-size:13px">acme / ai-lab</text></g>
+        <!-- lanes -->
+        <path class="ln draw" pathLength="1" d="M40 110H370"/>
+        <path class="ln draw" pathLength="1" style="animation-delay:1.1s" d="M120 110Q130 110 140 90Q150 62 175 62H245"/>
+        <path class="ln draw" pathLength="1" style="animation-delay:4.4s" d="M245 62Q270 62 280 90Q290 110 300 110"/>
+        <!-- commits -->
+        <circle class="ind pop" style="animation-delay:.2s" cx="50" cy="110" r="10"/>
+        <circle class="ind pop" style="animation-delay:.6s" cx="120" cy="110" r="10"/>
+        <circle class="yel pop" style="animation-delay:1.8s" cx="180" cy="62" r="10"/>
+        <circle class="yel pop" style="animation-delay:2.2s" cx="240" cy="62" r="10"/>
+        <circle class="ind pop" style="animation-delay:5s" cx="300" cy="110" r="13"/>
+        <circle class="ind pop" style="animation-delay:5.5s" cx="360" cy="110" r="10"/>
+        <g class="tx mono" style="font-size:9px;font-weight:500"><text x="50" y="132" text-anchor="middle">a1f3c2</text><text x="120" y="132" text-anchor="middle">9be07d</text><text x="180" y="44" text-anchor="middle">c4d8a1</text><text x="240" y="44" text-anchor="middle">17ab5e</text><text x="300" y="134" text-anchor="middle">e2d90c</text></g>
+        <!-- branch pills -->
+        <g class="fadein" style="animation-delay:.3s"><rect class="ind" x="30" y="70" width="40" height="18" rx="9"/><text class="tx mono" x="50" y="83" text-anchor="middle" style="fill:#fff;font-size:10px">main</text></g>
+        <g class="fadein" style="animation-delay:1.5s"><rect class="yel" x="262" y="40" width="108" height="18" rx="9"/><text class="tx mono" x="316" y="53" text-anchor="middle" style="fill:#1b2140;font-size:10px">feature/ai-notes</text></g>
+        <!-- PR card -->
+        <g class="pop" style="animation-delay:3.1s">
+          <rect class="lens" x="60" y="156" width="280" height="64" rx="12" style="stroke:var(--line);stroke-width:2"/>
+          <text class="mono" x="78" y="181" style="font-size:12px;fill:#d7e0ff">$ git switch main</text>
+          <text class="mono" x="78" y="203" style="font-size:12px;fill:#d7e0ff">$ git merge feature/ai-notes</text>
+        </g>
+        <g class="pop" style="animation-delay:5.8s"><circle cx="360" cy="168" r="14" class="ind"/><path d="M353 168l5 5 9-10" style="stroke:#fff;fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round"/></g>
+      </svg>
+      <p class="cap">Git, typed by hand.</p>
+    </section>
+
+    <!-- 5 -->
+    <section class="scene"><span class="num">5 / 5</span>
+      <svg viewBox="0 0 400 240" role="img" aria-label="An AI spinner is stopped by a hand, then a checkmark appears">
+        <circle cx="150" cy="105" r="60" class="ln" style="stroke:var(--soft);stroke-width:14"/>
+        <g class="spin"><path d="M150 45A60 60 0 0 1 210 105" class="ln" style="stroke:var(--indigo);stroke-width:14"/></g>
+        <path class="draw" pathLength="1" style="animation-delay:5s;stroke:var(--yellow);fill:none;stroke-width:12;stroke-linecap:round;stroke-linejoin:round" d="M120 108l22 22 40-46"/>
+        <g class="slide" style="--dx:170px;--dy:0;animation-delay:3.2s">
+          <g transform="translate(290 70) scale(1.25)">
+            <rect class="yel" x="0" y="44" width="54" height="52" rx="14"/>
+            <rect class="yel" x="0" y="0" width="10" height="52" rx="5"/>
+            <rect class="yel" x="14" y="-8" width="10" height="60" rx="5"/>
+            <rect class="yel" x="28" y="-4" width="10" height="56" rx="5"/>
+            <rect class="yel" x="42" y="6" width="10" height="46" rx="5"/>
+            <rect class="yel" x="-18" y="52" width="26" height="12" rx="6"/>
+          </g>
+        </g>
+      </svg>
+      <p class="cap">A human decides.</p>
+    </section>
+  </div>
+
+  <div class="bar" aria-hidden="true"><div id="fill"></div></div>
+  <div class="controls">
+    <button id="play" type="button">Play</button>
+    <button id="pause" type="button" class="alt">Pause</button>
+    <button id="replay" type="button" class="alt">Replay</button>
+  </div>
+</main>
+<script>
+(function(){
+  var DUR=7000,N=5,TOTAL=DUR*N;
+  var stage=document.getElementById('stage'),
+      scenes=[].slice.call(stage.querySelectorAll('.scene')),
+      fill=document.getElementById('fill'),
+      bPlay=document.getElementById('play'),
+      bPause=document.getElementById('pause'),
+      bReplay=document.getElementById('replay'),
+      reduce=window.matchMedia('(prefers-reduced-motion: reduce)'),
+      el=0,last=0,playing=false,idx=-1;
+
+  function show(i){
+    scenes.forEach(function(s){s.classList.remove('on')});
+    void stage.offsetWidth;
+    scenes[i].classList.add('on');
+    idx=i;
+  }
+  function ui(){
+    bPlay.disabled=playing;
+    bPause.disabled=!playing;
+    bPlay.textContent=(el>0&&el<TOTAL)?'Resume':'Play';
+    fill.style.width=(el/TOTAL*100)+'%';
+  }
+  function tick(ts){
+    if(!playing)return;
+    if(last)el+=Math.min(ts-last,250);
+    last=ts;
+    if(el>=TOTAL){el=TOTAL;playing=false;ui();return;}
+    var i=Math.floor(el/DUR);
+    if(i!==idx)show(i);
+    ui();
+    requestAnimationFrame(tick);
+  }
+  function play(){
+    if(el>=TOTAL){replay();return;}
+    if(idx<0)show(0);
+    stage.classList.remove('paused');
+    playing=true;last=0;ui();
+    requestAnimationFrame(tick);
+  }
+  function pause(){
+    playing=false;
+    stage.classList.add('paused');
+    ui();
+  }
+  function replay(){
+    playing=false;el=0;idx=-1;
+    stage.classList.remove('paused');
+    show(0);
+    playing=true;last=0;ui();
+    requestAnimationFrame(tick);
+  }
+  bPlay.addEventListener('click',play);
+  bPause.addEventListener('click',pause);
+  bReplay.addEventListener('click',replay);
+
+  function sendHeight(){
+    if(window.parent!==window){
+      window.parent.postMessage({explainerHeight:document.documentElement.scrollHeight},'*');
+    }
+  }
+  window.addEventListener('resize',sendHeight);
+  window.addEventListener('load',sendHeight);
+
+  if(!reduce.matches){
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(es,o){
+        if(es[0].isIntersecting){play();o.disconnect();}
+      },{threshold:.5}).observe(stage);
+    }else{play();}
+  }else{ui();}
+  sendHeight();
+})();
+</script>
+</body>
+</html>
