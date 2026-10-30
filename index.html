@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Workshop: a club for students who build</title>
+<meta name="description" content="A proposal for an after-school club where students learn to choose, use and check the AI tools professional developers work with.">
+<style>
+:root {
+  --bg: #fbfbf9; --fg: #16181d; --muted: #565c6b; --card: #ffffff; --line: #e1e4ea;
+  --accent: #2f5bea; --accent-fg: #ffffff; --soft: #eef2ff; --term: #14171f; --term-fg: #d7e0ff; --ok: #1e8a4c;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115; --fg: #eceef3; --muted: #a3a9b8; --card: #171a21; --line: #2a2f3a;
+    --accent: #8ea8ff; --accent-fg: #0f1115; --soft: #1b2033; --term: #0a0c11; --term-fg: #d7e0ff; --ok: #5ccf8f;
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }
+section { padding: 56px 0; border-top: 1px solid var(--line); }
+section:first-of-type { border-top: 0; }
+h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: 1.1; margin: 0 0 16px; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.5rem, 4vw, 2rem); line-height: 1.2; margin: 0 0 16px; letter-spacing: -0.01em; }
+h3 { font-size: 1.05rem; margin: 0 0 6px; }
+p { margin: 0 0 14px; }
+.lead { font-size: 1.2rem; color: var(--muted); max-width: 640px; }
+.eyebrow { font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); font-weight: 700; margin-bottom: 12px; }
+.hero { padding: 72px 0 56px; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+.term { background: var(--term); color: var(--term-fg); border-radius: 12px; padding: 16px 18px; margin-top: 28px;
+  font: 14px/1.7 ui-monospace, "Cascadia Code", Consolas, monospace; overflow-x: auto; min-height: 150px; }
+.term .p { color: #7be0a0; user-select: none; }
+.term .o { color: #98a2c3; }
+.term .cur { display: inline-block; width: 8px; height: 1em; background: var(--term-fg); vertical-align: text-bottom; animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.cap { font-size: .85rem; color: var(--muted); margin-top: 8px; }
+
+.grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 20px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+.card p { margin: 0; color: var(--muted); font-size: .96rem; }
+
+.made { margin-top: 22px; font-size: .84rem; color: var(--muted); border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; }
+.made b { color: var(--fg); }
+
+.picker { margin-top: 20px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: inherit; font-size: .92rem; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+  border-radius: 999px; padding: 10px 14px; cursor: pointer; min-height: 44px; transition: background .15s, border-color .15s; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.result { margin-top: 16px; background: var(--soft); border-radius: 12px; padding: 18px; min-height: 96px; }
+.result .tool { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+.result .why { margin: 0; color: var(--muted); }
+.result .tag { display: inline-block; font-size: .78rem; border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px; margin-top: 10px; color: var(--muted); background: var(--card); }
+
+.steps { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 14px; }
+.steps li { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 18px 18px 64px; position: relative; }
+.steps .n { position: absolute; left: 16px; top: 16px; width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: var(--accent-fg);
+  display: grid; place-items: center; font-weight: 700; }
+.steps h3 { margin-bottom: 2px; }
+.steps p { margin: 0; color: var(--muted); font-size: .96rem; }
+.mods { font-size: .8rem; color: var(--accent); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+
+.pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.pill { font-size: .88rem; padding: 6px 12px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); }
+
+ul.tick { list-style: none; padding: 0; margin: 12px 0 0; }
+ul.tick li { padding-left: 28px; position: relative; margin-bottom: 10px; }
+ul.tick li::before { content: "\2713"; position: absolute; left: 0; color: var(--ok); font-weight: 700; }
+
+table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: .95rem; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; width: 38%; }
+.tbl { overflow-x: auto; }
+
+footer { padding: 32px 0 56px; border-top: 1px solid var(--line); color: var(--muted); font-size: .88rem; }
+
+.js .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+.js .reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .js .reveal { opacity: 1; transform: none; transition: none; }
+  .term .cur { animation: none; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<section class="hero">
+  <p class="eyebrow">A proposal for an after-school club</p>
+  <h1>AI Workshop: a club for students who build.</h1>
+  <p class="lead">Students already learn to code. This club teaches them to work with the AI tools professional developers now use: choose the right tool, use it well, and check what it gives back.</p>
+  <div class="term" id="term" aria-label="Example of a student typing git commands" role="img"></div>
+  <p class="cap">Every student learns git by typing it themselves. This is an illustration, not a recording.</p>
+  <p class="made reveal"><b>Made with:</b> Page, layout and animation built with Claude Code. Concept, scope and decisions by Mark Tenzer.</p>
+</section>
+
+<section>
+  <h2 class="reveal">The gap</h2>
+  <p class="reveal">Students are taught Python. Many are not taught how AI coding tools work, which one to reach for, or how to tell when the answer is wrong. They are using these tools anyway, mostly on their own, with no habits to guide them.</p>
+  <div class="grid reveal">
+    <div class="card"><h3>Hand skills still matter</h3><p>A developer who can't read code can't judge what a tool wrote. The club teaches the basics properly, including git by hand.</p></div>
+    <div class="card"><h3>The toolbox has grown</h3><p>Professional teams already work with AI coding assistants. Like any toolbox, the value is in knowing what each tool is for.</p></div>
+    <div class="card"><h3>Judgment is the skill</h3><p>The student stays in charge. Tools propose, students read, test and decide.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2 class="reveal">Right tool for the job</h2>
+  <p class="reveal">One early session is built around a single idea: different tools are good at different things. Try it below. This is the kind of small interactive page a student could build in the club.</p>
+  <div class="picker reveal">
+    <div class="chips" id="chips" role="group" aria-label="Pick a task"></div>
+    <div class="result" id="result" aria-live="polite">
+      <div class="why">Pick a task to see which tool the club suggests as a starting point.</div>
+    </div>
+    <p class="cap">Starting points, not rules. Students test them on their own tasks and decide. Strengths change quickly, so the club re-checks them each time it runs.</p>
+  </div>
+  <p class="made reveal"><b>Made with:</b> The tool suggestions come from the club's tool guide, researched with Claude using web search and reviewed by Mark. The interactive picker was written with Claude Code.</p>
+</section>
+
+<section>
+  <h2 class="reveal">What students learn</h2>
+  <p class="reveal">Thirteen short modules, each 45 to 60 minutes. A module that runs over is picked up at the next session, so it fits a club, a workshop or a course.</p>
+  <ol class="steps">
+    <li class="reveal"><span class="n">1</span><span class="mods">Modules 1 to 3</span><h3>Know the toolbox</h3><p>What AI students already use, the right tool for each job, and the right and wrong way to code with AI.</p></li>
+    <li class="reveal"><span class="n">2</span><span class="mods">Modules 4 and 5</span><h3>Git, the developer's safety net</h3><p>How version control works, then the commands by hand in Git Bash. Branches, history, undoing mistakes, keeping secrets out of a repo.</p></li>
+    <li class="reveal"><span class="n">3</span><span class="mods">Modules 6 to 8</span><h3>An AI coding tool, then checking its work</h3><p>Set one up in their own project. Use it to review changes, find bugs, write tests and spot security problems.</p></li>
+    <li class="reveal"><span class="n">4</span><span class="mods">Modules 9 to 11</span><h3>How software really gets built</h3><p>The development life cycle, traditional and AI-assisted, then a real project of their own from spec to working code.</p></li>
+    <li class="reveal"><span class="n">5</span><span class="mods">Modules 12 and 13</span><h3>Judgment, then agents</h3><p>Keys, privacy, integrity and licensing. Finally, building a small AI agent on top of code that already works.</p></li>
+  </ol>
+</section>
+
+<section>
+  <h2 class="reveal">The tools are the industry's tools</h2>
+  <p class="reveal">Nothing here is a classroom toy. Students learn the tools professional developers work with every day.</p>
+  <div class="pill-row reveal">
+    <span class="pill">Git and Git Bash</span><span class="pill">GitHub</span><span class="pill">Python</span><span class="pill">AI coding assistants</span>
+    <span class="pill">Automated tests</span><span class="pill">Code review</span><span class="pill">Security checks</span><span class="pill">APIs</span>
+  </div>
+  <p class="reveal" style="margin-top:20px">This page is one more example. It was planned, written, versioned and published with those same tools. <a href="https://github.com/empty214/ai-pitch/commits/main">The full change history is public</a>, so anyone can see how it was made, step by step.</p>
+</section>
+
+<section>
+  <h2 class="reveal">Guardrails</h2>
+  <ul class="tick reveal">
+    <li>Students use only tools they are old enough to use. Account rules differ by tool, so the trainer demonstrates any tool with an age limit above the students' ages.</li>
+    <li>Everything the AI writes is read, tested and understood before it is used. If a student can't explain the code, it isn't finished.</li>
+    <li>Students type git commands themselves before any tool is allowed to run them.</li>
+    <li>No passwords, keys or personal data go into an AI tool or a code repository. Repositories start private.</li>
+    <li>The school decides which tools are allowed and how the club fits its integrity and safeguarding rules.</li>
+  </ul>
+</section>
+
+<section>
+  <h2 class="reveal">The proposal</h2>
+  <div class="tbl reveal">
+    <table>
+      <tr><th>Who</th><td>Students who code or want to, and hobby builders. Roughly 5 to 10 per club.</td></tr>
+      <tr><th>Format</th><td>About an hour a session. Frequency and length set by the school.</td></tr>
+      <tr><th>Work</th><td>Students bring their own projects. A starter project is available for anyone without one.</td></tr>
+      <tr><th>Led by</th><td>Mark Tenzer, who runs similar AI workshops for university students.</td></tr>
+      <tr><th>Next step</th><td>A conversation about timing, equipment and which tools the school allows.</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2 class="reveal">How this page was made</h2>
+  <p class="reveal">The point of the club is to show students what they can produce. So here is what produced this page, element by element.</p>
+  <div class="tbl reveal">
+    <table>
+      <tr><th>Concept, scope, decisions</th><td>Mark Tenzer</td></tr>
+      <tr><th>Writing and structure</th><td>Drafted with Claude, edited and approved by Mark</td></tr>
+      <tr><th>Research on tools and age rules</th><td>Claude with web search, then checked by Mark. Vendor pages are the source of truth</td></tr>
+      <tr><th>Layout, animation, tool picker</th><td>Built with Claude Code as one self-contained file</td></tr>
+      <tr><th>Version history and publishing</th><td>Git and GitHub, published with GitHub Pages</td></tr>
+      <tr><th>Images, voice, video</th><td>None yet. A next version could add them, each credited the same way</td></tr>
+    </table>
+  </div>
+  <p class="cap">No account is needed to view this page. It has no tracking and loads nothing from other sites.</p>
+</section>
+
+</main>
+<footer>
+  <div class="wrap">AI Workshop proposal, version 0.1, 30 October 2026.</div>
+</footer>
+
+<script>
+(function () {
+  document.documentElement.classList.add('js');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Scroll reveal
+  var els = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    els.forEach(function (el) { io.observe(el); });
+  } else {
+    els.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  // Terminal illustration
+  var term = document.getElementById('term');
+  var lines = [
+    ['cmd', 'git init'],
+    ['out', 'Initialized empty Git repository'],
+    ['cmd', 'git add .'],
+    ['cmd', 'git commit -m "First version of my project"'],
+    ['out', '[main (root-commit) 4f2a9c1] First version of my project'],
+    ['cmd', 'git push']
+  ];
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  function row(l) {
+    return l[0] === 'cmd'
+      ? '<div><span class="p">$ </span>' + esc(l[1]) + '</div>'
+      : '<div class="o">' + esc(l[1]) + '</div>';
+  }
+  if (reduce) {
+    term.innerHTML = lines.map(row).join('');
+  } else {
+    var i = 0, html = '';
+    (function next() {
+      if (i >= lines.length) { term.innerHTML = html + '<div><span class="p">$ </span><span class="cur"></span></div>'; return; }
+      html += row(lines[i++]);
+      term.innerHTML = html + '<div><span class="p">$ </span><span class="cur"></span></div>';
+      setTimeout(next, 750);
+    })();
+  }
+
+  // Tool picker
+  var tasks = [
+    ['Write an email or essay draft', 'ChatGPT', 'Good at drafting and changing tone. It tends to be wordy, so trim what it gives you.', 'Students can use it (13+, parental permission under 18)'],
+    ['Find the latest on something', 'Gemini', 'Works well with what Google indexes, plus YouTube and your own Google documents.', 'Students can use it (13+)'],
+    ['Summarize a document or build slides', 'Copilot', 'Sits inside Word, Excel, PowerPoint and Outlook, so it works on files already there.', 'Often provided through the school'],
+    ['Debug code or get a short, direct answer', 'Claude', 'Concise answers, strong at code and at reading long text.', 'Age 18+, so the trainer demonstrates it'],
+    ['Find papers and check a claim', 'Perplexity', 'Answers come with sources you can open and check.', 'Check the age rule first'],
+    ['Revise from my own notes', 'NotebookLM', 'Answers only from the material you upload, which cuts down on made-up facts.', 'Google account rules apply'],
+    ['See what is trending right now', 'Grok', 'Reads live posts on X. Not a tool for school work or careful accuracy.', 'Age rule unclear'],
+    ['Solve a maths problem for free', 'DeepSeek', 'Free and capable at maths and code. Check where it stores data before using anything personal.', 'Age rule not confirmed'],
+    ['Ask a quick question on my phone', 'Meta AI', 'Built into WhatsApp and Instagram, so it is already in hand.', '13+']
+  ];
+  var chips = document.getElementById('chips');
+  var result = document.getElementById('result');
+  function pick(idx, btn) {
+    Array.prototype.forEach.call(chips.children, function (b) { b.setAttribute('aria-pressed', 'false'); });
+    btn.setAttribute('aria-pressed', 'true');
+    var t = tasks[idx];
+    result.innerHTML = '<div class="tool"></div><p class="why"></p><span class="tag"></span>';
+    result.querySelector('.tool').textContent = t[1];
+    result.querySelector('.why').textContent = t[2];
+    result.querySelector('.tag').textContent = t[3];
+  }
+  tasks.forEach(function (t, idx) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.textContent = t[0]; b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', function () { pick(idx, b); });
+    chips.appendChild(b);
+  });
+})();
+</script>
+</body>
+</html>
