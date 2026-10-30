@@ -275,6 +275,7 @@ button:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
   }
   window.addEventListener('resize',sendHeight);
   window.addEventListener('load',sendHeight);
+  if('ResizeObserver' in window){new ResizeObserver(sendHeight).observe(document.getElementById('app'));}
 
   if(!reduce.matches){
     if('IntersectionObserver' in window){
