@@ -46,6 +46,10 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outlin
 .fig { margin: 28px 0 0; }
 .fig img { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line); }
 .fig figcaption { font-size: .85rem; color: var(--muted); margin-top: 8px; }
+.clipbtn { margin-top: 14px; border-color: var(--accent); }
+.clipbox video { display: block; width: 100%; max-width: 280px; max-height: 70vh; margin: 14px auto 0; background: #000;
+  border: 7px solid var(--term); border-radius: 26px; }
+.clipbox .cap { max-width: 520px; margin: 10px auto 0; text-align: center; }
 
 .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 20px; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
@@ -209,7 +213,7 @@ footer { padding: 32px 0 56px; border-top: 1px solid var(--line); color: var(--m
       <tr><th>Research on tools and age rules</th><td>Researched by Mark with Gemini. Age rules for several tools cross-checked with Claude's web search. Each provider's own terms are the source of truth</td></tr>
       <tr><th>Layout, animation, tool picker</th><td>Built with Claude Code as one self-contained file</td></tr>
       <tr><th>Version history and publishing</th><td>Git and GitHub, published with GitHub Pages</td></tr>
-      <tr><th>Images, voice, video</th><td>Three illustrations: ChatGPT image generation, prompts written with Claude. Animated explainer: written by Claude in a chat, adjusted with Claude Code. A short NotebookLM video clip is coming, credited the same way</td></tr>
+      <tr><th>Images, voice, video</th><td>Three illustrations: ChatGPT image generation, prompts written with Claude. Animated explainer: written by Claude in a chat, adjusted with Claude Code. Short video: NotebookLM (now Gemini Notebook), from a source text written with Claude, script outline reviewed by Mark</td></tr>
     </table>
   </div>
   <p class="cap">No account is needed to view this page. It has no tracking and loads nothing from other sites.</p>
@@ -217,7 +221,7 @@ footer { padding: 32px 0 56px; border-top: 1px solid var(--line); color: var(--m
 
 </main>
 <footer>
-  <div class="wrap">AI Workshop proposal, version 0.4, 30 October 2026.</div>
+  <div class="wrap">AI Workshop proposal, version 0.5, 31 October 2026.</div>
 </footer>
 
 <script>
@@ -279,7 +283,7 @@ footer { padding: 32px 0 56px; border-top: 1px solid var(--line); color: var(--m
     ['Summarize a document or build slides', 'Copilot', 'Sits inside Word, Excel, PowerPoint and Outlook, so it works on files already there.', 'Provided by the school'],
     ['Debug code in my project', 'Codex or Claude Code', 'Both work inside your project, read the code and propose changes you review. Direct answers and strong at debugging.', 'Codex: 13+, parental permission under 18. Claude Code: 18+, so the trainer demonstrates it and students who are 18 can use it'],
     ['Find papers and check a claim', 'Perplexity', 'Search first: every answer cites sources you can open and check. Pair it with NotebookLM: find the sources here, analyze them there.', '13+, parental consent under 18'],
-    ['Revise from my own notes', 'NotebookLM', 'Works only from the documents you upload and cites them, so it makes up less. Turns notes into study guides, flashcards and audio overviews.', '13+, or managed by the school through Google Workspace for Education'],
+    ['Revise from my own notes', 'NotebookLM (now Gemini Notebook)', 'Works only from the documents you upload and cites them, so it makes up less. Turns notes into study guides, flashcards, audio and video overviews.', '13+, or managed by the school through Google Workspace for Education', 'media/notebooklm-clip.mp4'],
     ['See what is trending right now', 'Grok', 'Reads live posts on X. It has fewer guardrails and an informal tone, so it is not for school work.', '13+, parental permission under 18'],
     ['Ask a quick question on my phone', 'Meta AI', 'Built into WhatsApp and Instagram, so it is already in hand.', '13+'],
     ['Try a free tool I just heard about', 'DeepSeek', 'Capable and free, but a good example of checking first. Its privacy policy says data is stored on servers in mainland China, so different laws apply. Ask where your data goes before you type anything personal.', '14+, with a guardian under 18, per its policy']
@@ -294,6 +298,29 @@ footer { padding: 32px 0 56px; border-top: 1px solid var(--line); color: var(--m
     result.querySelector('.tool').textContent = t[1];
     result.querySelector('.why').textContent = t[2];
     result.querySelector('.tag').textContent = t[3];
+    if (t[4]) {
+      var btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'chip clipbtn'; btn.textContent = 'Watch an example (about a minute)';
+      btn.setAttribute('aria-expanded', 'false');
+      var box = document.createElement('div');
+      box.className = 'clipbox'; box.hidden = true;
+      btn.addEventListener('click', function () {
+        if (box.hidden) {
+          var v = document.createElement('video');
+          v.controls = true; v.playsInline = true; v.preload = 'metadata'; v.src = t[4];
+          v.setAttribute('aria-label', 'A one minute video overview of the AI Workshop idea, made by the tool from one source text');
+          var c = document.createElement('p');
+          c.className = 'cap';
+          c.textContent = 'Made with: NotebookLM (now Gemini Notebook), from one source text written with Claude. Mark reviewed the script outline before it was made. The narration and visuals are the tool\'s own. Captions are not available.';
+          box.innerHTML = ''; box.appendChild(v); box.appendChild(c);
+          box.hidden = false; btn.setAttribute('aria-expanded', 'true'); btn.textContent = 'Hide the example';
+        } else {
+          var old = box.querySelector('video'); if (old) old.pause();
+          box.hidden = true; btn.setAttribute('aria-expanded', 'false'); btn.textContent = 'Watch an example (about a minute)';
+        }
+      });
+      result.appendChild(btn); result.appendChild(box);
+    }
   }
   tasks.forEach(function (t, idx) {
     var b = document.createElement('button');
