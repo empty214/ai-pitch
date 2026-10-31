@@ -221,7 +221,7 @@ footer { padding: 32px 0 56px; border-top: 1px solid var(--line); color: var(--m
 
 </main>
 <footer>
-  <div class="wrap">AI Workshop proposal, version 0.5, 31 October 2026.</div>
+  <div class="wrap">AI Workshop proposal, version 0.6, 31 October 2026.</div>
 </footer>
 
 <script>
@@ -278,48 +278,70 @@ footer { padding: 32px 0 56px; border-top: 1px solid var(--line); color: var(--m
 
   // Tool picker
   var tasks = [
+    ['Revise from my own notes', 'NotebookLM (now Gemini Notebook)', 'Works only from the documents you upload and cites them, so it makes up less. Turns notes into study guides, flashcards, audio and video overviews.', '13+, or managed by the school through Google Workspace for Education', 'media/notebooklm-clip.mp4'],
     ['Write an email or essay draft', 'ChatGPT', 'Good at drafting and changing tone. It tends to be wordy, so trim what it gives you.', '13+, parental permission under 18'],
     ['Find the latest on something', 'Gemini', 'Works well with what Google indexes, plus YouTube and your own Google documents.', '13+'],
     ['Summarize a document or build slides', 'Copilot', 'Sits inside Word, Excel, PowerPoint and Outlook, so it works on files already there.', 'Provided by the school'],
     ['Debug code in my project', 'Codex or Claude Code', 'Both work inside your project, read the code and propose changes you review. Direct answers and strong at debugging.', 'Codex: 13+, parental permission under 18. Claude Code: 18+, so the trainer demonstrates it and students who are 18 can use it'],
     ['Find papers and check a claim', 'Perplexity', 'Search first: every answer cites sources you can open and check. Pair it with NotebookLM: find the sources here, analyze them there.', '13+, parental consent under 18'],
-    ['Revise from my own notes', 'NotebookLM (now Gemini Notebook)', 'Works only from the documents you upload and cites them, so it makes up less. Turns notes into study guides, flashcards, audio and video overviews.', '13+, or managed by the school through Google Workspace for Education', 'media/notebooklm-clip.mp4'],
     ['See what is trending right now', 'Grok', 'Reads live posts on X. It has fewer guardrails and an informal tone, so it is not for school work.', '13+, parental permission under 18'],
     ['Ask a quick question on my phone', 'Meta AI', 'Built into WhatsApp and Instagram, so it is already in hand.', '13+'],
     ['Try a free tool I just heard about', 'DeepSeek', 'Capable and free, but a good example of checking first. Its privacy policy says data is stored on servers in mainland China, so different laws apply. Ask where your data goes before you type anything personal.', '14+, with a guardian under 18, per its policy']
   ];
   var chips = document.getElementById('chips');
   var result = document.getElementById('result');
-  function pick(idx, btn) {
+  var clipIO = null;
+
+  function openClip(src) {
+    var box = document.createElement('div');
+    box.className = 'clipbox';
+    var v = document.createElement('video');
+    v.controls = true; v.playsInline = true; v.muted = true; v.preload = 'metadata'; v.src = src;
+    v.setAttribute('aria-label', 'A one minute video overview of the AI Workshop idea, made by the tool from one source text');
+    var hint = document.createElement('p');
+    hint.className = 'cap';
+    hint.textContent = 'Plays without sound at first. Use the speaker icon on the player to hear it. It has captions.';
+    var credit = document.createElement('p');
+    credit.className = 'cap';
+    credit.textContent = 'Made with: NotebookLM (now Gemini Notebook), from one source text written with Claude. Mark reviewed the script outline before it was made. The narration, captions and visuals are the tool's own.';
+    v.addEventListener('volumechange', function () { hint.hidden = !v.muted; });
+    box.appendChild(v); box.appendChild(hint); box.appendChild(credit);
+    if ('IntersectionObserver' in window && !reduce) {
+      var started = false;
+      clipIO = new IntersectionObserver(function (es) {
+        if (es[0].isIntersecting && !started) { started = true; v.play().catch(function () {}); }
+      }, { threshold: 0.6 });
+      clipIO.observe(v);
+    } else {
+      hint.hidden = true;
+    }
+    return box;
+  }
+
+  function pick(idx, chip) {
+    if (clipIO) { clipIO.disconnect(); clipIO = null; }
     Array.prototype.forEach.call(chips.children, function (b) { b.setAttribute('aria-pressed', 'false'); });
-    btn.setAttribute('aria-pressed', 'true');
+    chip.setAttribute('aria-pressed', 'true');
     var t = tasks[idx];
     result.innerHTML = '<div class="tool"></div><p class="why"></p><span class="tag"></span>';
     result.querySelector('.tool').textContent = t[1];
     result.querySelector('.why').textContent = t[2];
     result.querySelector('.tag').textContent = t[3];
     if (t[4]) {
-      var btn = document.createElement('button');
-      btn.type = 'button'; btn.className = 'chip clipbtn'; btn.textContent = 'Watch an example (about a minute)';
-      btn.setAttribute('aria-expanded', 'false');
-      var box = document.createElement('div');
-      box.className = 'clipbox'; box.hidden = true;
-      btn.addEventListener('click', function () {
+      var box = openClip(t[4]);
+      var toggle = document.createElement('button');
+      toggle.type = 'button'; toggle.className = 'chip clipbtn';
+      toggle.setAttribute('aria-expanded', 'true'); toggle.textContent = 'Hide the example';
+      toggle.addEventListener('click', function () {
+        var v = box.querySelector('video');
         if (box.hidden) {
-          var v = document.createElement('video');
-          v.controls = true; v.playsInline = true; v.preload = 'metadata'; v.src = t[4];
-          v.setAttribute('aria-label', 'A one minute video overview of the AI Workshop idea, made by the tool from one source text');
-          var c = document.createElement('p');
-          c.className = 'cap';
-          c.textContent = 'Made with: NotebookLM (now Gemini Notebook), from one source text written with Claude. Mark reviewed the script outline before it was made. The narration and visuals are the tool\'s own. Captions are not available.';
-          box.innerHTML = ''; box.appendChild(v); box.appendChild(c);
-          box.hidden = false; btn.setAttribute('aria-expanded', 'true'); btn.textContent = 'Hide the example';
+          box.hidden = false; toggle.setAttribute('aria-expanded', 'true'); toggle.textContent = 'Hide the example';
         } else {
-          var old = box.querySelector('video'); if (old) old.pause();
-          box.hidden = true; btn.setAttribute('aria-expanded', 'false'); btn.textContent = 'Watch an example (about a minute)';
+          if (v) v.pause();
+          box.hidden = true; toggle.setAttribute('aria-expanded', 'false'); toggle.textContent = 'Show the example';
         }
       });
-      result.appendChild(btn); result.appendChild(box);
+      result.appendChild(box); result.appendChild(toggle);
     }
   }
   tasks.forEach(function (t, idx) {
@@ -328,6 +350,7 @@ footer { padding: 32px 0 56px; border-top: 1px solid var(--line); color: var(--m
     b.addEventListener('click', function () { pick(idx, b); });
     chips.appendChild(b);
   });
+  pick(0, chips.children[0]);
 })();
 </script>
 </body>
