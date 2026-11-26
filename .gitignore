@@ -1,0 +1,10 @@
+# secrets (repo standard v1.0)
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.pfx
+# Claude Code local
+.claude/settings.local.json
+.claude/worktrees/
